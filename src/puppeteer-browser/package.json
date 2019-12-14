@@ -1,0 +1,21 @@
+{
+  "name": "puppeteer-browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/puppeteer": "^2.0.0",
+    "highcharts": "^8.0.0",
+    "puppeteer": "^2.0.0",
+    "serialize-javascript": "^2.1.2"
+  },
+  "devDependencies": {
+    "ts-node": "^8.5.4"
+  }
+}

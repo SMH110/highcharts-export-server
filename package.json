@@ -1,0 +1,20 @@
+{
+  "name": "highcharts-to-svg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "highcharts": "^8.0.0",
+    "typescript": "^3.7.3"
+  },
+  "devDependencies": {
+    "ts-node": "^8.5.4"
+  }
+}
