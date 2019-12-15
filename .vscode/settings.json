@@ -1,5 +1,109 @@
 {
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "server.js": true,
+        
+    },
+
+    "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/node_modules/**": true
+} 
+,
+    "todo-tree.grouped": false,
+    "todo-tree.flat": false,
     "cSpell.words": [
-        "highcharts"
-    ]
+        "Aggs",
+        "Btns",
+        "Callout",
+        "Callouts",
+        "Custpricechanges",
+        "Equion",
+        "Fyear",
+        "Highchart",
+        "Highcharts",
+        "Initialise",
+        "Initialised",
+        "Msgs",
+        "Publicise",
+        "Redburn",
+        "Redburn's",
+        "Reqs",
+        "Scroller",
+        "Srvs",
+        "Stuckable",
+        "TBCRes",
+        "Unauthorised",
+        "Wacc",
+        "Watchlist",
+        "Watchlists",
+        "asos",
+        "bopatroe",
+        "categorise",
+        "categorised",
+        "chartdata",
+        "chartobj",
+        "charttitle",
+        "chartvalue",
+        "checkversion",
+        "clientmessages",
+        "cntxt",
+        "contextlist",
+        "criterias",
+        "currentlyinfocus",
+        "customcharting",
+        "depram",
+        "dropdown",
+        "dropdowns",
+        "ecode",
+        "entitycode",
+        "entitytablelist",
+        "estimatesmom",
+        "fdescribe",
+        "hardcoded",
+        "ideashomepagedata",
+        "includescreens",
+        "infile",
+        "ipad",
+        "isie",
+        "keypress",
+        "longportfolio",
+        "monv",
+        "neighbour",
+        "printwatchlist",
+        "redburnideas",
+        "repend",
+        "reportset",
+        "reportsets",
+        "roce",
+        "saveditems",
+        "screeningcriteria",
+        "searchfilter",
+        "sharedurlreportset",
+        "sharedurlwatchlist",
+        "shortportfolio",
+        "sortgroup",
+        "sortings",
+        "stockstrigger",
+        "strongs",
+        "techhighlight",
+        "themeitems",
+        "tinyurl",
+        "toggleable",
+        "universeid",
+        "wmotw"
+    ],
+
+    // "workbench.colorCustomizations": {
+    //     "editor.selectionBackground": "#5da1fa52", //Currently SELECTED text
+    //     "editor.selectionHighlightBackground": "#ffe3e35b", //Same content as selection
+    //     "editor.findMatchBackground": "#00cc44a8", //Current SEARCH MATCH
+    //     "editor.findMatchHighlightBackground": "#ff7b00a1" //Other SEARCH MATCHES
+    // }
+
+    "prettier.configPath": ".prettier.json"
 }

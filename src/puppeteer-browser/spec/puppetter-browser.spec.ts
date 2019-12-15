@@ -1,41 +1,32 @@
 import PuppeteerBrowser from "../puppeteer-browser";
 describe("PuppeteerBrowser ", () => {
-  let browser: PuppeteerBrowser;
-  let chart: any = {
-    chart: {},
-    title: {
-      text: "Demo of reusing but modifying default X axis label formatter"
-    },
+  let chart: any = beforeEach(() => {
+    chart = {
+      chart: {},
+      title: {
+        text: "Hello World"
+      },
 
-    subtitle: {
-      text: "X axis labels should have thousands separators"
-    },
-
-    xAxis: {
-      labels: {
-        formatter: function() {
-          var label = this.axis.defaultLabelFormatter.call(this);
-
-          if (/^[0-9]{4}$/.test(label)) {
-            return Math.round(this.value * 100) / 100;
+      yAxis: {
+        labels: {
+          formatter: function() {
+            return `${this.value}__prefix__`;
           }
-          return label;
         }
-      }
-    },
+      },
 
-    series: [
-      {
-        data: [29.9, 71.5, 106.4],
+      series: [
+        {
+          data: [29.9, 71.5, 106.4],
 
-        type: "column"
-      }
-    ]
-  };
-  beforeEach(() => {
-    browser = new PuppeteerBrowser();
+          type: "column"
+        }
+      ]
+    };
   });
+
   it("Should be able to get charts svg as expected", async done => {
+    let browser = new PuppeteerBrowser({debug: false});
     let svgs = await browser.getSVG([chart], {
       JsScriptsPaths: [
         "./node_modules/highcharts/highcharts.js",
@@ -43,7 +34,10 @@ describe("PuppeteerBrowser ", () => {
       ]
     });
     expect(svgs.length).toBe(1);
-    expect(svgs[0].includes("Demo of reusing but modifying default X axis label formatter")).toBe(true, 'Chart title in the svg');
+    expect(svgs[0].includes("Hello World")).toBe(true, "Chart title in the svg");
+    expect(svgs[0].match(/__prefix__/g).length).toBeGreaterThan(4, "Label formatter function ran");
+
     done();
   });
+  
 });

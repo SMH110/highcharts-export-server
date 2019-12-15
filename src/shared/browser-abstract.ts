@@ -1,19 +1,15 @@
-import * as highcharts from 'highcharts'
+import * as highcharts from "highcharts";
 
 export class BrowserAbstract {
+  public async getSVG(chartOptions: ChartOptions[], options: ExportOptions): Promise<string[]> {
+    return [];
+  }
 
-    public async getSVG(chartOptions:ChartOptions[], options:BrowserOptions): Promise<string[]> {
-        return []
-    }
+  public close(): void {}
 }
 
-
-export interface BrowserOptions {
-    JsScriptsPaths: string[];
-    viewPortWidth?: number;
-    viewPortHeight?: number;
-    isDebug?: boolean
-   
+export interface ExportOptions {
+  JsScriptsPaths: string[];
 }
 
-export type ChartOptions  = highcharts.Options;
+export type ChartOptions = highcharts.Options;
