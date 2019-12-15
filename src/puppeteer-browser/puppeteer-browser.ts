@@ -65,18 +65,7 @@ class PuppeteerBrowser implements BrowserAbstract {
       (_, index) => `<div id="container-${index}"></div>`
     );
 
-    let style = [];
-    if (options.containerHeight) {
-      style.push(`height:${options.containerHeight}`);
-    }
-
-    if (options.containerWidth) {
-      style.push(`width:${options.containerWidth}`);
-    }
-
-    return `<div id="main-container" style="${style.join(
-      ";"
-    )}">${containers.join("")}</div>`;
+    return `<div id="main-container">${containers.join("")}</div>`;
   }
 
   private async injectJS(page: puppeteer.Page, paths: string[]) {

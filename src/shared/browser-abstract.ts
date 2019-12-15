@@ -9,11 +9,10 @@ export class BrowserAbstract {
 
 
 export interface BrowserOptions {
-    containerWidth?: string;
-    containerHeight?: string;
     JsScriptsPaths: string[];
     viewPortWidth?: number;
-    viewPortHeight?: number
+    viewPortHeight?: number;
+    isDebug?: boolean
    
 }
 

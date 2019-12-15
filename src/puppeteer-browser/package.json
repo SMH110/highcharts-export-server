@@ -4,18 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node -r ./tsconfig node_modules/jasmine/bin/jasmine"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jasmine": "^3.5.0",
+    "@types/jest": "^24.0.23",
     "@types/puppeteer": "^2.0.0",
-    "highcharts": "^8.0.0",
     "puppeteer": "^2.0.0",
     "serialize-javascript": "^2.1.2"
   },
   "devDependencies": {
+    "highcharts": "^8.0.0",
+    "jasmine": "^3.5.0",
     "ts-node": "^8.5.4"
   }
 }
