@@ -1,6 +1,6 @@
 import * as highcharts from "highcharts";
 
-export class BrowserAbstract {
+export abstract class BrowserAbstract {
   public async getSVG(chartOptions: ChartOptions[], options: ExportOptions): Promise<string[]> {
     return [];
   }
