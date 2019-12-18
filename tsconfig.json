@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "types": [
+      "jasmine",
+      "node"
+    ]
+  },
+
+  "include": [
+    "**/**.ts",
+    "**/*.d.ts"
+  ]
+}

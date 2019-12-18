@@ -1,8 +1,8 @@
-class ServiceLocator {
+export class ServiceLocator {
   private dependencies = {};
   private factories = {};
 
-  public get(name: nameType) {
+  public getItem(name: nameType) {
     if (!this.dependencies[name]) {
       const factory = this.factories[name];
       this.dependencies[name] = factory && factory(this);
@@ -13,7 +13,7 @@ class ServiceLocator {
     return this.dependencies[name];
   }
 
-  public factory(name, factory) {
+  public factory(name:any, factory) {
     this.factories[name] = factory;
   }
 
@@ -25,7 +25,12 @@ class ServiceLocator {
 export const serviceLocator = new ServiceLocator();
 
 export enum dependenciesName {
-  chartExportWorkerPath = 0
+  chartExportWorkerPath = 0,
+  objectSerialise,
+  chartDataParser
 }
 
-type nameType = dependenciesName.chartExportWorkerPath;
+type nameType =
+  | dependenciesName.chartExportWorkerPath
+  | dependenciesName.objectSerialise
+  | dependenciesName.chartDataParser;
