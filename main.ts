@@ -137,28 +137,42 @@ let chart3 = {
 }
 
 
-async function  main (){
-  console.time('start')
+// async function  main (){
+//   console.time('start')
   
-  let charts = [chart, chart2,chart3,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart2,chart2,chart2,chart2,chart2];
+//   let charts = [chart, chart2,chart3,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart,chart2,chart2,chart2,chart2,chart2];
 
-  let pages = [];
+//   let pages = [];
 
-  for (let i=0; i < charts.length; i = i + 20){
-    pages.push(charts.slice(i, i + 20 ));
-  }
+//   for (let i=0; i < charts.length; i = i + 20){
+//     pages.push(charts.slice(i, i + 20 ));
+//   }
   
 
-  let p = pages.map(page =>  {
-    let b = new PuppeteerBrowser();
+//   let p = pages.map(page =>  {
+//     let b = new PuppeteerBrowser();
    
-    return  b.getSVG(page,{JsScriptsPaths: [ './node_modules/highcharts/highcharts.js', './node_modules/highcharts/modules/exporting.js']} )
-  })
- let x = await  Promise.all(p)
- console.timeEnd('start')
-//  console.log('x',x);
+//     return  b.getSVG(page,{JsScriptsPaths: [ './node_modules/highcharts/highcharts.js', './node_modules/highcharts/modules/exporting.js']} )
+//   })
+//  let x = await  Promise.all(p)
+//  console.timeEnd('start')
+// //  console.log('x',x);
  
   
-}
+// }
 
-main()
+// main()
+
+import {fork} from 'child_process';
+
+
+let child = fork("./src/spec/helpers/convert-worker.ts", []);
+child.send('message one');
+
+child.on('message', (m)=>{
+  console.log('messsssage from baby child' , m)
+})
+
+// setTimeout(() => {
+//   child.disconnect()
+// }, 1500);

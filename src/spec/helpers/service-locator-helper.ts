@@ -5,6 +5,6 @@ import { ObjectSerialise } from "../../serialiser/serilaiser";
 export function getServiceLocator() {
   let srvLocator = new ServiceLocator();
   srvLocator.register(dependenciesName.objectSerialise, new ObjectSerialise());
-  srvLocator.register(dependenciesName.chartDataParser, new ChartDataConverter(srvLocator));
+  srvLocator.register(dependenciesName.chartDataConverter, new ChartDataConverter(srvLocator));
   return srvLocator;
 }
