@@ -1,11 +1,13 @@
 import { ChartExportService } from "../chart-export-service/chart-export-service";
 import { getServiceLocator } from "./helpers/service-locator-helper";
-import { fork, execFileSync } from "child_process";
 import { unlinkFile } from "./helpers/until";
 import { join } from "path";
 import { getTestChart } from "./helpers/test-charts";
 import { readFileSync, existsSync } from "fs";
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 15;
+
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 20;
+
 describe("Chart Export Service", () => {
   let chartExportService: ChartExportService;
   beforeEach(() => {
@@ -23,35 +25,43 @@ describe("Chart Export Service", () => {
   it("Should split the converting process between workers", async () => {
     let chart = getTestChart();
     let charts = [];
-    for (let i = 0; i < 1500; i++) charts.push(chart);
+    let chartsAmount = 32;
+    for (let i = 0; i < chartsAmount; i++) charts.push(chart);
 
     await chartExportService.getSVG(charts, {
-      pathToWorker: join(__dirname, "helpers", "convert-worker.ts")
+      pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
+      // exportOptions: null,
     });
 
-    let output = readFileSync(join(__dirname, "helpers/output.txt"), { encoding: "utf-8" })
+    let output = readFileSync(join(__dirname,  "helpers", "output.txt"), { encoding: "utf-8" })
       .trim()
-      .split("\n");
-    expect(output.length).toBe(8);
+      .split("\n");      
+    expect(output.reduce((acc, cur)=> acc+= parseInt(cur),0)).toBe(chartsAmount);
   });
 
   it("Should be able to terminate all ongoing export process", async done => {
 
     let chart = getTestChart();
     let charts = [];
-    for (let i = 0; i < 1500; i++) charts.push(chart);
+    let chartsAmount = 32;
+    for (let i = 0; i < chartsAmount; i++) charts.push(chart);
 
     await chartExportService.getSVG(charts, {
       pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
+      // exportOptions: null,
       terminate: new Promise(res =>
         setTimeout(() => {
           res();
-        }, 900)
+        }, 500)
       )
     });
 
-    let output = existsSync(join(__dirname, "helpers/output.txt"));
+    
+
+   setTimeout(() => {
+    let output = existsSync(join(__dirname, "helpers", "output.txt"));
     expect(output).toBe(false);
     done();
+   }, 5000);
   });
 });

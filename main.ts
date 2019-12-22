@@ -1,5 +1,8 @@
 import PuppeteerBrowser from "./src/puppeteer-browser/puppeteer-browser";
 import * as Highcharts from 'highcharts'
+import { getServiceLocator } from "./src/spec/helpers/service-locator-helper";
+import { ChartExportService } from "./src/chart-export-service/chart-export-service";
+import { writeFile } from "fs";
 let chart : any= {
     chart : {},
   title: {
@@ -163,16 +166,52 @@ let chart3 = {
 
 // main()
 
-import {fork} from 'child_process';
+// import {fork} from 'child_process';
 
 
-let child = fork("./src/spec/helpers/convert-worker.ts", []);
-child.send('message one');
+// let child = fork("./src/spec/helpers/convert-worker.ts", []);
+// child.send('message one');
 
-child.on('message', (m)=>{
-  console.log('messsssage from baby child' , m)
+// child.on('message', (m)=>{
+//   console.log('messsssage from baby child' , m)
+// })
+
+// // setTimeout(() => {
+// //   child.disconnect()
+// // }, 1500);
+
+
+async function main(){
+  let charts = [];
+
+  for(let i=0; i < 5; i++){
+    charts.push(chart)
+    charts.push(chart3)
+    charts.push(chart2)
+  }
+  let serviceLocator = getServiceLocator();
+  let chartExportService = new ChartExportService(serviceLocator);
+
+
+  console.time('start')
+let output = await chartExportService.getSVG(charts, {
+  pathToWorker: "./src/chart-export-service/puppeteer-browser-worker.ts",
+  // terminate: new Promise(res => setTimeout(_=> res(), 20000)),
+  browserOptions: {
+    debug: false,
+
+  },
+  exportOptions: {
+    JsScriptsPaths:[ './node_modules/highcharts/highcharts.js', './node_modules/highcharts/modules/exporting.js']
+  }
+});
+
+
+writeFile('svg.txt', output, ()=>{
+
 })
+console.timeEnd('start')
 
-// setTimeout(() => {
-//   child.disconnect()
-// }, 1500);
+}
+
+main()

@@ -1,4 +1,5 @@
 import * as highcharts from "highcharts";
+import { ExportOptions } from "../data";
 
 export abstract class BrowserAbstract {
   public async getSVG(chartOptions: ChartOptions[], options: ExportOptions): Promise<string[]> {
@@ -8,8 +9,6 @@ export abstract class BrowserAbstract {
   public close(): void {}
 }
 
-export interface ExportOptions {
-  JsScriptsPaths: string[];
-}
+
 
 export type ChartOptions = highcharts.Options;

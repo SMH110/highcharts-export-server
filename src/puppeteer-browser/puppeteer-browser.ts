@@ -1,14 +1,15 @@
-import { BrowserAbstract, ExportOptions, ChartOptions } from "../shared/browser-abstract";
-import { Options, BrowserBase } from "../shared/browser-base";
+import { BrowserAbstract,  ChartOptions } from "../shared/browser-abstract";
+import {  BrowserBase } from "../shared/browser-base";
 import * as puppeteer from "puppeteer";
 import * as serialize from "serialize-javascript";
 
 import { readFileSync } from "fs";
+import { ExportOptions, BrowserOptions } from "../data";
 
 declare var Highcharts;
 
 class PuppeteerBrowser extends BrowserBase implements BrowserAbstract {
-  constructor(private _options: Options) {
+  constructor(private _options: BrowserOptions) {
     super(_options);
   }
   private browser: puppeteer.Browser;

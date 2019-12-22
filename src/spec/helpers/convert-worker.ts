@@ -1,14 +1,21 @@
 import { writeFile } from "fs";
+import { ChartConvertWorkerDataMessage } from "../../data";
 
 console.log('worker is called');
 
-process.on("message", () => {
-    
-  writeFile(`./src/spec/helpers/output.txt`, `done\n`,  {flag : 'a'},  error => {
+process.on("message", (data) => {
+  let parsed : ChartConvertWorkerDataMessage = JSON.parse(data); 
+ 
+  let charts = Function('"use strict";return (' + parsed.charts + ")")();
+  setTimeout(() => {
+  writeFile(`./src/spec/helpers/output.txt`, charts.length + '\n',  {flag : 'a'},  error => {
     if (error) return;
 
+   
     process.send("worker done");
+  
   });
+}, 250);
 });
 
 
