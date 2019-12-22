@@ -6,7 +6,9 @@ import { fork, ChildProcess } from "child_process";
 import { BrowserOptions, ExportOptions, ChartConvertWorkerDataMessage } from "../data";
 
 abstract class ChartExportServiceAbstract {
-  public async getSVG(charts: ChartOptions[], options: getSVGOptions) {}
+  public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
+    return "";
+  }
 }
 
 export class ChartExportService implements ChartExportServiceAbstract {
@@ -17,7 +19,7 @@ export class ChartExportService implements ChartExportServiceAbstract {
 
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
     let terminateResolve;
-
+    let secure = options.secure || true;
     if (options.terminate == null) options.terminate = new Promise(resolve => (terminateResolve = resolve));
 
     let segments = this.getSegments(charts);
@@ -26,17 +28,21 @@ export class ChartExportService implements ChartExportServiceAbstract {
       workers = segments.map(() => fork(options.pathToWorker, []));
       let operations = workers.map(
         (worker, index) =>
-          new Promise((res, rej) => {
-
-            let workerData : ChartConvertWorkerDataMessage = {
+          new Promise<string>((res, rej) => {
+            let workerData: ChartConvertWorkerDataMessage;
+            try {
+              workerData = {
                 browserOptions: options.browserOptions,
-                charts: this.dataConverter.serialise(segments[index], { secure: false }),
+                charts: this.dataConverter.serialise(segments[index], { secure }),
                 exportOptions: options.exportOptions
-            } 
+              };
+            } catch (error) {
+              rej(error);
+            }
 
             worker.send(JSON.stringify(workerData));
             worker.on("message", svg => {
-              res(svg);
+              res(svg as string);
               worker.disconnect();
             });
 
@@ -49,18 +55,18 @@ export class ChartExportService implements ChartExportServiceAbstract {
       }, mainReject);
     });
 
-    return Promise.race([options.terminate, svgData]).then(data => {
+    return Promise.race([options.terminate, svgData]).then((data: string) => {
       workers.forEach(worker => worker.disconnect());
-      if (terminateResolve) terminateResolve([]);
+      if (terminateResolve) terminateResolve("");
       return data;
     });
   }
 
   private getSegments(charts: any[]) {
-    let cpuLength =  cpus().length;
-    let processors   =   charts.length / (cpuLength * 4) > cpuLength ? cpuLength : cpuLength > 1 ?  2 : 1
+    let cpuLength = cpus().length;
+    let processors = charts.length / (cpuLength * 4) > cpuLength ? cpuLength : cpuLength > 1 ? 2 : 1;
     // let processors   =  4
-    let itemPerCpu = Math.ceil(charts.length / processors  );
+    let itemPerCpu = Math.ceil(charts.length / processors);
     console.log("itemPerCpu", itemPerCpu);
     let segments = [];
     for (let i = 0; i < charts.length; i += itemPerCpu) {
@@ -73,6 +79,7 @@ export class ChartExportService implements ChartExportServiceAbstract {
 export interface getSVGOptions {
   pathToWorker: string;
   terminate?: Promise<any>;
-  browserOptions? : BrowserOptions,
-  exportOptions?: ExportOptions
+  browserOptions?: BrowserOptions;
+  exportOptions?: ExportOptions;
+  secure?: boolean;
 }

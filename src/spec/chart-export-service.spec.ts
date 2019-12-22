@@ -30,7 +30,8 @@ describe("Chart Export Service", () => {
 
     await chartExportService.getSVG(charts, {
       pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
-      // exportOptions: null,
+      exportOptions: null,
+      secure: false,
     });
 
     let output = readFileSync(join(__dirname,  "helpers", "output.txt"), { encoding: "utf-8" })
@@ -48,7 +49,7 @@ describe("Chart Export Service", () => {
 
     await chartExportService.getSVG(charts, {
       pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
-      // exportOptions: null,
+      secure: false,
       terminate: new Promise(res =>
         setTimeout(() => {
           res();
