@@ -184,7 +184,7 @@ let chart3 = {
 async function main(){
   let charts = [];
 
-  for(let i=0; i < 5; i++){
+  for(let i=0; i < 1; i++){
     charts.push(chart)
     charts.push(chart3)
     charts.push(chart2)
@@ -207,7 +207,7 @@ let output = await chartExportService.getSVG(charts, {
 });
 
 
-writeFile('svg.txt', output, ()=>{
+writeFile('svg.txt',output, ()=>{
 
 })
 console.timeEnd('start')

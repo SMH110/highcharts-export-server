@@ -27,10 +27,16 @@ export const serviceLocator = new ServiceLocator();
 export enum dependenciesName {
   chartExportWorkerPath = 0,
   objectSerialise,
-  chartDataConverter
+  chartDataConverter,
+  chartExportService,
+  secure,
+  jsScriptsPaths,
 }
 
 type nameType =
   | dependenciesName.chartExportWorkerPath
   | dependenciesName.objectSerialise
-  | dependenciesName.chartDataConverter;
+  | dependenciesName.chartDataConverter
+  | dependenciesName.chartExportService
+  | dependenciesName.secure
+  | dependenciesName.jsScriptsPaths;

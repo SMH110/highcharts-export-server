@@ -1,5 +1,5 @@
-import { BrowserAbstract,  ChartOptions } from "../shared/browser-abstract";
-import {  BrowserBase } from "../shared/browser-base";
+import { BrowserAbstract, ChartOptions } from "../shared/browser-abstract";
+import { BrowserBase } from "../shared/browser-base";
 import * as puppeteer from "puppeteer";
 import * as serialize from "serialize-javascript";
 
@@ -29,8 +29,8 @@ class PuppeteerBrowser extends BrowserBase implements BrowserAbstract {
       }
       return instances;
     } catch (error) {
-      console.error(error);
-     !this.debug && this.close();
+      // console.error("Error in puppeteer", error);
+      !this.debug && this.close();
     }
   }
 
@@ -86,13 +86,19 @@ class PuppeteerBrowser extends BrowserBase implements BrowserAbstract {
   private evaluate(container: HTMLElement, chartOptions: string) {
     let instances = [];
 
-    return new Promise<string[]>(res => {
+    return new Promise<string[]>((res, rej) => {
       // loose parse
       let charts = Function('"use strict";return (' + chartOptions + ")")() as ChartOptions[];
       charts.forEach((chart, index) => {
         let chartContainer = container.querySelector(`#container-${index}`);
-        chart.chart.renderTo = chartContainer as HTMLElement;
-        instances.push(new Highcharts.Chart(chart));
+        try {
+          // chart.chart = chart.chart || {};
+          chart.chart.renderTo = chartContainer as HTMLElement;
+
+          instances.push(new Highcharts.Chart(chart));
+        } catch (error) {
+          rej(error);
+        }
       });
 
       res(instances.map(chartInstance => chartInstance.getSVGForExport()));

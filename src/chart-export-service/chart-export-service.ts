@@ -7,7 +7,7 @@ import { BrowserOptions, ExportOptions, ChartConvertWorkerDataMessage } from "..
 
 abstract class ChartExportServiceAbstract {
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
-    return "";
+    return [];
   }
 }
 
@@ -39,32 +39,42 @@ export class ChartExportService implements ChartExportServiceAbstract {
             } catch (error) {
               rej(error);
             }
-
+            worker.on("error", (error)=>{
+              console.log('\n\n\n worker error ', error);
+              
+              rej()
+              
+            });
             worker.send(JSON.stringify(workerData));
-            worker.on("message", svg => {
-              res(svg as string);
+            worker.on("message", message => {
+              if (message.error) return rej();
+              res(message as string);
               worker.disconnect();
             });
 
-            worker.on("error", rej);
+           
           })
       );
       return Promise.all(operations).then(data => {
-        console.log("finished");
-        return mainResolve(data);
-      }, mainReject);
+        console.log("finished", data.length);
+        return mainResolve(data.reduce((acc,curr)=> acc.concat(curr), []));
+      })
+      .catch(error => {
+        mainReject(error)
+      })
     });
 
-    return Promise.race([options.terminate, svgData]).then((data: string) => {
+    return Promise.race([options.terminate, svgData]).then((data: string[]) => {
       workers.forEach(worker => worker.disconnect());
-      if (terminateResolve) terminateResolve("");
+      if (terminateResolve) terminateResolve([]);
       return data;
-    });
+    })
+   
   }
 
   private getSegments(charts: any[]) {
     let cpuLength = cpus().length;
-    let processors = charts.length / (cpuLength * 4) > cpuLength ? cpuLength : cpuLength > 1 ? 2 : 1;
+    let processors = charts.length / (cpuLength * 4) > cpuLength ? Math.floor(cpuLength / 2) : cpuLength > 1 ? 2 : 1;
     // let processors   =  4
     let itemPerCpu = Math.ceil(charts.length / processors);
     console.log("itemPerCpu", itemPerCpu);
