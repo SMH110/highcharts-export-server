@@ -5,8 +5,17 @@ import { ChartDataConverter } from "./src/charts-data-parser-service/charts-data
 import { ChartExportService } from "./src/chart-export-service/chart-export-service";
 import chartExportPluginFactory from "./src/export-chart-plugin/export-chart-plugin";
 import { json } from "body-parser";
+import ProcessPool from './src/process-pool/process-pool'
+
 const serviceLocator = new ServiceLocator();
+serviceLocator.register(dependenciesName.maxWorkers, 4)
 serviceLocator.register(dependenciesName.secure, process.env.SECURE || true);
+serviceLocator.register(
+  dependenciesName.chartExportWorkerPath,
+  "./src/chart-export-service/puppeteer-browser-worker.ts"
+);
+serviceLocator.register(dependenciesName.processPool, new ProcessPool(serviceLocator.getItem(dependenciesName.chartExportWorkerPath), 4))
+
 serviceLocator.register(dependenciesName.objectSerialise, new ObjectSerialise());
 serviceLocator.register(dependenciesName.chartDataConverter, new ChartDataConverter(serviceLocator));
 serviceLocator.register(dependenciesName.chartExportService, new ChartExportService(serviceLocator));
@@ -15,10 +24,9 @@ serviceLocator.register(dependenciesName.jsScriptsPaths, [
   "./node_modules/highcharts/modules/exporting.js"
 ]);
 
-serviceLocator.register(
-  dependenciesName.chartExportWorkerPath,
-  "./src/chart-export-service/puppeteer-browser-worker.ts"
-);
+
+
+
 
 const app = express();
 const expressExportChartPlugin = chartExportPluginFactory(serviceLocator);

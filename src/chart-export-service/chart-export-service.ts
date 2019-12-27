@@ -4,6 +4,7 @@ import { ServiceLocator, dependenciesName } from "../service-locator/service-loc
 import { ChartDataConverter } from "../charts-data-parser-service/charts-data-parser-service";
 import { fork, ChildProcess } from "child_process";
 import { BrowserOptions, ExportOptions, ChartConvertWorkerDataMessage } from "../data";
+import ProcessPool from "../process-pool/process-pool";
 
 abstract class ChartExportServiceAbstract {
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
@@ -13,8 +14,12 @@ abstract class ChartExportServiceAbstract {
 
 export class ChartExportService implements ChartExportServiceAbstract {
   private dataConverter: ChartDataConverter;
+  private processPool: ProcessPool;
+  private maxWorkers: number;
   constructor(private serviceLocator: ServiceLocator) {
     this.dataConverter = this.serviceLocator.getItem(dependenciesName.chartDataConverter);
+    this.processPool = this.serviceLocator.getItem(dependenciesName.processPool);
+    this.maxWorkers = this.serviceLocator.getItem(dependenciesName.maxWorkers);
   }
 
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
@@ -23,9 +28,8 @@ export class ChartExportService implements ChartExportServiceAbstract {
     if (options.terminate == null) options.terminate = new Promise(resolve => (terminateResolve = resolve));
 
     let segments = this.getSegments(charts);
-    let workers: ChildProcess[] = [];
+    let workers = (await Promise.all(this.getWorkers(segments))) as ChildProcess[];
     let svgData = new Promise((mainResolve, mainReject) => {
-      workers = segments.map(() => fork(options.pathToWorker, []));
       let operations = workers.map(
         (worker, index) =>
           new Promise<string>((res, rej) => {
@@ -38,56 +42,73 @@ export class ChartExportService implements ChartExportServiceAbstract {
               };
             } catch (error) {
               rej(error);
+              
             }
-            worker.on("error", (error)=>{
-              console.log('\n\n\n worker error ', error);
-              
-              rej()
-              
-            });
-            worker.send(JSON.stringify(workerData));
-            worker.on("message", message => {
-              if (message.error) return rej();
-              res(message as string);
-              worker.disconnect();
-            });
 
-           
+            const workerListener = message => {
+              if (message.error) {
+                rej(message);
+                return
+              }
+            
+              res(message as string);
+               return
+            };
+
+            worker.send(JSON.stringify(workerData));
+            worker.on("message", workerListener);
           })
       );
-      return Promise.all(operations).then(data => {
-        console.log("finished", data.length);
-        return mainResolve(data.reduce((acc,curr)=> acc.concat(curr), []));
-      })
-      .catch(error => {
-        mainReject(error)
-      })
+      return Promise.all(operations)
+        .then(data => {
+          console.log("finished", data.length);
+          return mainResolve(data.reduce((acc, curr) => acc.concat(curr), []));
+        })
+        .catch(error => {
+          mainReject(error);
+        });
     });
 
     return Promise.race([options.terminate, svgData]).then((data: string[]) => {
-      workers.forEach(worker => worker.disconnect());
+      workers.forEach(worker => {
+        worker.removeAllListeners('message')
+        this.processPool.release(worker)
+      });
       if (terminateResolve) terminateResolve([]);
       return data;
+    }).catch(error => {
+      workers.forEach(worker => {
+        worker.removeAllListeners('message')
+        this.processPool.release(worker)
+      });
+      if (terminateResolve) terminateResolve([]);
+     throw new Error(error)
     })
-   
   }
 
   private getSegments(charts: any[]) {
     let cpuLength = cpus().length;
-    let processors = charts.length / (cpuLength * 4) > cpuLength ? Math.floor(cpuLength / 2) : cpuLength > 1 ? 2 : 1;
+    let processors = cpuLength > 1 ? this.maxWorkers : 1;
     // let processors   =  4
     let itemPerCpu = Math.ceil(charts.length / processors);
-    console.log("itemPerCpu", itemPerCpu);
+
     let segments = [];
     for (let i = 0; i < charts.length; i += itemPerCpu) {
       segments.push(charts.slice(i, i + itemPerCpu));
     }
+
+    console.log("itemPerCpu", itemPerCpu, " process for this request", segments.length);
     return segments;
+  }
+
+  private getWorkers(items: any[]) {
+    return items.map(_ => {
+      return new Promise(res => this.processPool.acquire(res));
+    });
   }
 }
 
 export interface getSVGOptions {
-  pathToWorker: string;
   terminate?: Promise<any>;
   browserOptions?: BrowserOptions;
   exportOptions?: ExportOptions;

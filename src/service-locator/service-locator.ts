@@ -31,6 +31,8 @@ export enum dependenciesName {
   chartExportService,
   secure,
   jsScriptsPaths,
+  processPool,
+  maxWorkers
 }
 
 type nameType =
@@ -39,4 +41,6 @@ type nameType =
   | dependenciesName.chartDataConverter
   | dependenciesName.chartExportService
   | dependenciesName.secure
-  | dependenciesName.jsScriptsPaths;
+  | dependenciesName.jsScriptsPaths
+  | dependenciesName.processPool
+  | dependenciesName.maxWorkers

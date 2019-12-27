@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 
 class ExpressExportChartPlugin {
   public method = "post";
-  public endpoint =  "/svg";
+  public endpoint = "/svg";
   private chartExportService: ChartExportService;
   public chartConverter: ChartDataConverter;
   private secure: boolean;
@@ -18,7 +18,6 @@ class ExpressExportChartPlugin {
   public async requestHandler(req: Request, res: Response) {
     let options = this.parseRequestOptions(req);
     if (options == null) return this.handleBadRequest(res);
-
     let terminate;
     let terminatePromise = new Promise(res => (terminate = res));
 
@@ -26,7 +25,6 @@ class ExpressExportChartPlugin {
 
     try {
       let svg = await this.chartExportService.getSVG(options.chartOptions as Highcharts.ChartOptions[], {
-        pathToWorker: this.serviceLocator.getItem(dependenciesName.chartExportWorkerPath),
         secure: this.secure,
         terminate: terminatePromise,
         browserOptions: {
@@ -35,7 +33,7 @@ class ExpressExportChartPlugin {
         exportOptions: { JsScriptsPaths: this.serviceLocator.getItem(dependenciesName.jsScriptsPaths) }
       });
       // console.log('svg',svg);
-      
+      svg = svg || [""];
       res.status(200).send(svg.join(","));
     } catch (error) {
       console.error(error);
@@ -65,8 +63,6 @@ class ExpressExportChartPlugin {
   }
 
   private handleError(res: Response) {
-    console.log('ran');
-    
     res.status(500).json({
       error: `An Error ocurred while converting your data`
     });
@@ -74,16 +70,14 @@ class ExpressExportChartPlugin {
 
   private parseRequestOptions(req: Request): RequestBody {
     let body = req.body;
-    console.log('typeof body', typeof body);
-    
-    
+
     try {
-      let parsedBody = JSON.parse(body.chartOptions)
-      
+      let parsedBody = JSON.parse(body.chartOptions);
+
       let charts = this.chartConverter.deSerialise(parsedBody, { secure: this.secure });
-      
-      parsedBody.chartOptions = charts;
-      return parsedBody;
+
+      body.chartOptions = charts;
+      return body;
     } catch (error) {
       console.error(error);
       return null;
