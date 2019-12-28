@@ -1,11 +1,10 @@
-import { ChartOptions, chart } from "highcharts";
+import { ChartOptions } from "highcharts";
 import { cpus } from "os";
 import { ServiceLocator, dependenciesName } from "../service-locator/service-locator";
 import { ChartDataConverter } from "../charts-data-parser-service/charts-data-parser-service";
-import { fork, ChildProcess } from "child_process";
+import {  ChildProcess } from "child_process";
 import { BrowserOptions, ExportOptions, ChartConvertWorkerDataMessage } from "../data";
 import ProcessPool from "../process-pool/process-pool";
-import { worker } from "cluster";
 
 abstract class ChartExportServiceAbstract {
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
