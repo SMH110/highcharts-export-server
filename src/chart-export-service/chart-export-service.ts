@@ -5,6 +5,7 @@ import { ChartDataConverter } from "../charts-data-parser-service/charts-data-pa
 import { fork, ChildProcess } from "child_process";
 import { BrowserOptions, ExportOptions, ChartConvertWorkerDataMessage } from "../data";
 import ProcessPool from "../process-pool/process-pool";
+import { worker } from "cluster";
 
 abstract class ChartExportServiceAbstract {
   public async getSVG(charts: ChartOptions[], options: getSVGOptions) {
@@ -28,7 +29,8 @@ export class ChartExportService implements ChartExportServiceAbstract {
     if (options.terminate == null) options.terminate = new Promise(resolve => (terminateResolve = resolve));
 
     let segments = this.getSegments(charts);
-    let workers = (await Promise.all(this.getWorkers(segments))) as ChildProcess[];
+    let workersPromise = Promise.all(this.getWorkers(segments));
+    let workers = (await workersPromise) as ChildProcess[];
     let svgData = new Promise((mainResolve, mainReject) => {
       let operations = workers.map(
         (worker, index) =>
@@ -42,17 +44,16 @@ export class ChartExportService implements ChartExportServiceAbstract {
               };
             } catch (error) {
               rej(error);
-              
             }
 
             const workerListener = message => {
               if (message.error) {
                 rej(message);
-                return
+                return;
               }
-            
+
               res(message as string);
-               return
+              return;
             };
 
             worker.send(JSON.stringify(workerData));
@@ -69,21 +70,25 @@ export class ChartExportService implements ChartExportServiceAbstract {
         });
     });
 
-    return Promise.race([options.terminate, svgData]).then((data: string[]) => {
-      workers.forEach(worker => {
-        worker.removeAllListeners('message')
-        this.processPool.release(worker)
+    return Promise.race([options.terminate, svgData])
+      .then((data: string[]) => {
+        workers.forEach(worker => {
+          worker.send("terminate");
+          worker.removeAllListeners("message");
+          this.processPool.release(worker);
+        });
+        if (terminateResolve) terminateResolve([]);
+        return data;
+      })
+      .catch(error => {
+        workers.forEach(worker => {
+          worker.send("terminate");
+          worker.removeAllListeners("message");
+          this.processPool.release(worker);
+        });
+        if (terminateResolve) terminateResolve([]);
+        throw new Error(error);
       });
-      if (terminateResolve) terminateResolve([]);
-      return data;
-    }).catch(error => {
-      workers.forEach(worker => {
-        worker.removeAllListeners('message')
-        this.processPool.release(worker)
-      });
-      if (terminateResolve) terminateResolve([]);
-     throw new Error(error)
-    })
   }
 
   private getSegments(charts: any[]) {

@@ -12,7 +12,7 @@ class ProcessPool {
     if (this.pool.length > 0) {
       worker = this.pool.pop();
       this.active.push(worker);
-      resolve(worker);
+      process.nextTick(resolve(worker));
       return;
     }
     if (this.active.length >= this.poolMax) {
@@ -21,7 +21,7 @@ class ProcessPool {
     }
     worker = fork(this.file);
     this.active.push(worker);
-    resolve(worker);
+    process.nextTick(resolve(worker));
   }
 
   release(worker: ChildProcess) {

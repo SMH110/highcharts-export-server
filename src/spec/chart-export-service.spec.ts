@@ -25,11 +25,10 @@ describe("Chart Export Service", () => {
   it("Should split the converting process between workers", async () => {
     let chart = getTestChart();
     let charts = [];
-    let chartsAmount = 32;
+    let chartsAmount = 36;
     for (let i = 0; i < chartsAmount; i++) charts.push(chart);
 
     await chartExportService.getSVG(charts, {
-      pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
       exportOptions: null,
       secure: false,
     });
@@ -48,7 +47,6 @@ describe("Chart Export Service", () => {
     for (let i = 0; i < chartsAmount; i++) charts.push(chart);
 
     await chartExportService.getSVG(charts, {
-      pathToWorker: join(__dirname, "helpers", "convert-worker.ts"),
       secure: false,
       terminate: new Promise(res =>
         setTimeout(() => {

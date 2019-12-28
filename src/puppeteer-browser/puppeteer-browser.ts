@@ -35,7 +35,7 @@ class PuppeteerBrowser extends BrowserBase implements BrowserAbstract {
   }
 
   public close() {
-    this.browser && this.browser.close();
+      this.browser && this.browser.close();
   }
 
   private async getPage() {
@@ -44,7 +44,7 @@ class PuppeteerBrowser extends BrowserBase implements BrowserAbstract {
       let page = await this.browser.newPage();
       return page;
     } catch (error) {
-      console.error(`Error in creating page`, error);
+      // console.error(`Error in creating page`, error);
       !this.debug && this.close();
     }
   }

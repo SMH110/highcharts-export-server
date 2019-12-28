@@ -3,14 +3,19 @@ import { ChartConvertWorkerDataMessage } from "../data";
 
 console.log("puppeteer worker");
 
+let browser;
 process.on("message", async (data: string) => {
- try {
-  let output = await main(data);
-  process.send(output);
- } catch (error) {
-  process.send({error : error})
- }
-  
+  try {
+    if (browser && data == "terminate") {
+      browser.close();
+      process.send("");
+      return;
+    }
+    let output = await main(data);
+    process.send(output);
+  } catch (error) {
+    process.send({ error: error });
+  }
 });
 
 process.on("disconnect", () => {
@@ -21,8 +26,7 @@ async function main(data: string) {
   let parsed: ChartConvertWorkerDataMessage = JSON.parse(data);
   let { charts, browserOptions, exportOptions } = parsed;
   let parsedCharts = Function('"use strict";return (' + charts + ")")();
-  let browser = new PuppeteerBrowser(browserOptions);
+  browser = new PuppeteerBrowser(browserOptions);
 
-  return  browser.getSVG(parsedCharts, exportOptions);
- 
+  return browser.getSVG(parsedCharts, exportOptions);
 }
