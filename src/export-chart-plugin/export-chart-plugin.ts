@@ -11,7 +11,7 @@ class ExpressExportChartPlugin {
   private secure: boolean;
   constructor(private serviceLocator: ServiceLocator) {
     this.chartExportService = this.serviceLocator.getItem(dependenciesName.chartExportService);
-    this.secure = this.serviceLocator.getItem(dependenciesName.secure) || true;
+    this.secure = JSON.parse(this.serviceLocator.getItem(dependenciesName.secure));
     this.chartConverter = this.serviceLocator.getItem(dependenciesName.chartDataConverter);
   }
 
@@ -36,7 +36,7 @@ class ExpressExportChartPlugin {
       svg = svg || [""];
       res.status(200).send(svg.join(","));
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       this.handleError(res);
     } finally {
       terminate();

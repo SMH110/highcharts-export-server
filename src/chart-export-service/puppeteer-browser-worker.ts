@@ -12,6 +12,7 @@ process.on("message", async (data: string) => {
       return;
     }
     let output = await main(data);
+    browser = null;
     process.send(output);
   } catch (error) {
     process.send({ error: error });
@@ -27,6 +28,5 @@ async function main(data: string) {
   let { charts, browserOptions, exportOptions } = parsed;
   let parsedCharts = Function('"use strict";return (' + charts + ")")();
   browser = new PuppeteerBrowser(browserOptions);
-
   return browser.getSVG(parsedCharts, exportOptions);
 }
