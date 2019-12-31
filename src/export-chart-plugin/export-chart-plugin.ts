@@ -50,12 +50,12 @@ class ExpressExportChartPlugin {
 
         usage:
          {
-             options : {
-                pageWidth: 800, // optional
-                pageHeight: 450, // optional 
+             "options" : {
+                "pageWidth": 800, // optional
+                "pageHeight": 450, // optional 
              },
 
-             chartOptions : "[...]" // string 
+             "chartOptions" : "[...]" // string 
          }
         
         `

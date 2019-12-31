@@ -8,6 +8,7 @@ import { json } from "body-parser";
 import ProcessPool from "./src/process-pool/process-pool";
 import { flags } from "./src/flags";
 import * as chalk from "chalk";
+import { Request, Response } from "express";
 
 const serviceLocator = new ServiceLocator();
 serviceLocator.register(dependenciesName.secure, "true");
@@ -43,6 +44,9 @@ const app = express();
 const expressExportChartPlugin = chartExportPluginFactory(serviceLocator);
 
 app.use(json({ limit: "50mb" }));
+app.use (function (_error, _req, res: Response, _next){
+  res.status(400).json({error : 'An error ocurred while parsing your data'})
+});
 
 app[expressExportChartPlugin.method](
   expressExportChartPlugin.endpoint,
