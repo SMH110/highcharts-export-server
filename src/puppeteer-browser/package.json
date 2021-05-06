@@ -17,7 +17,7 @@
     "serialize-javascript": "^2.1.2"
   },
   "devDependencies": {
-    "highcharts": "^8.0.0",
+    "highcharts": "^9.0.0",
     "jasmine": "^3.5.0",
     "ts-node": "^8.5.4"
   }
